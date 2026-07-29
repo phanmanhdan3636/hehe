@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero card">
+  <div class="hero-copy">
+    <div class="badge">🔥 Web FF dành cho tất cả mọi người! </div>
+    <h1>Esports, tin tức, cẩm nang, tuyển team, giftcode </h1>
+    <p class="lead">Bạn có thể:đăng bài, like, bình luận, upload ảnh, hồ sơ người dùng, chỉnh giải đấu và trang sửa tài khoản riêng.</p>
+    <div class="cta">
+      <a class="btn primary" href="{{ url_for('create_post') }}">Đăng bài mới</a>
+      <a class="btn ghost" href="{{ url_for('admin_tournament') }}">Sửa giải đấu</a>
+      <a class="btn ghost" href="{{ url_for('api_tournament') }}" target="_blank">API giải đấu</a>
+    </div>
+  </div>
+  <div class="hero-side">
+    <div class="mini-stat"><strong>{{ tournament.title }}</strong><span>{{ tournament.season }} · {{ tournament.region }}</span></div>
+    <div class="mini-stat"><strong>{{ tournament.current_stage }}</strong><span>{{ tournament.status }}</span></div>
+    <div class="mini-stat"><strong>{{ 'Duyệt bài bật' if tournament.approved_only else 'Duyệt bài tắt' }}</strong><span>{{ tournament.updated_at | prettydate }}</span></div>
+  </div>
+</section>
+<section class="grid-2">
+  <div class="card">
+    <div class="section-head"><h2>Lịch thi đấu</h2><a href="{{ url_for('section', section_name='esports') }}">Xem esports</a></div>
+    <div class="timeline">
+      {% for item in tournament.schedule_json | fromjson %}
+      <article class="timeline-item"><div class="time">{{ item.time }}</div><div><h3>{{ item.title }}</h3><p>{{ item.detail }}</p></div></article>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-head"><h2>Bảng xếp hạng</h2><a href="{{ url_for('section', section_name='esports') }}">Cập nhật</a></div>
+    <div class="ranklist">
+      {% for team in tournament.points_json | fromjson %}
+      <div class="rankrow"><div class="rankname">{{ loop.index }}. {{ team.team }}</div><div class="rankpts">{{ team.points }} pts</div></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="card">
+  <div class="section-head">
+    <div><h2>Bài viết mới</h2><p>Tìm kiếm và lọc bằng query</p></div>
+    <div class="filters">
+      <a class="chip {{ 'active-chip' if status=='approved' else '' }}" href="{{ url_for('home', status='approved', q=q, category=category) }}">Đã duyệt</a>
+      <a class="chip {{ 'active-chip' if status=='pending' else '' }}" href="{{ url_for('home', status='pending', q=q, category=category) }}">Chờ duyệt</a>
+      <a class="chip {{ 'active-chip' if status=='all' else '' }}" href="{{ url_for('home', status='all', q=q, category=category) }}">Tất cả</a>
+    </div>
+  </div>
+  <form method="get" class="searchbar">
+    <input name="q" value="{{ q }}" placeholder="Tìm kiếm bài viết, tác giả...">
+    <select name="category">
+      <option value="">Tất cả chuyên mục</option>
+      {% for cat in categories %}<option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}
+    </select>
+    <input type="hidden" name="status" value="{{ status }}">
+    <button class="btn primary" type="submit">Tìm</button>
+  </form>
+  <div class="postlist">
+    {% for post in posts %}
+    <article class="post">
+      <div class="post-top">
+        <div class="left">
+          <div class="tag">{{ post.category }}</div>
+          <h3><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h3>
+          <div class="meta">Bởi <a href="{{ url_for('profile', username=post.author_username) }}">{{ post.author_display_name }}</a> · {{ post.created_at | prettydate }} · {{ post.status }}</div>
+        </div>
+        <div class="stats-pill"><span>👍 {{ post.likes_count }}</span><span>💬 {{ post.comments_count }}</span></div>
+      </div>
+      <p>{{ post.content }}</p>
+      {% if post.image %}<img class="post-image" src="{{ media_url('posts', post.image) }}" alt="image">{% endif %}
+      {% if post.video_url %}<div class="video-link">Video: <a href="{{ post.video_url }}" target="_blank">{{ post.video_url }}</a></div>{% endif %}
+      <div class="actions">
+        <a class="btn ghost" href="{{ url_for('post_detail', post_id=post.id) }}">Mở bài</a>
+        {% if current_user %}
+        <form method="post" action="{{ url_for('like_post', post_id=post.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn ghost" type="submit">{{ 'Bỏ like' if post.liked else 'Like' }}</button></form>
+        {% endif %}
+        {% if current_user and (current_user.role in ['admin','mod'] or current_user.id == post.author_id) %}
+        <a class="btn ghost" href="{{ url_for('edit_post', post_id=post.id) }}">Sửa</a>
+        <form method="post" action="{{ url_for('delete_post', post_id=post.id) }}" class="inline" onsubmit="return confirm('Xóa bài này?')"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn danger" type="submit">Xóa</button></form>
+        {% endif %}
+      </div>
+    </article>
+    {% else %}
+    <div class="empty">Chưa có bài viết nào.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

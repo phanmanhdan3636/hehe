@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="section-head"><div><h1>Chỉnh thông số giải đấu</h1><p>Sửa title, mùa giải, stage, trạng thái, lịch thi đấu, bảng điểm.</p></div><a class="btn ghost" href="{{ url_for('admin_dashboard') }}">Dashboard</a></div>
+  <form method="post" class="form form-wide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="grid-2">
+      <div><label>Title</label><input name="title" value="{{ tournament.title }}"></div>
+      <div><label>Season</label><input name="season" value="{{ tournament.season }}"></div>
+      <div><label>Region</label><input name="region" value="{{ tournament.region }}"></div>
+      <div><label>Current stage</label><input name="current_stage" value="{{ tournament.current_stage }}"></div>
+      <div><label>Status</label><input name="status" value="{{ tournament.status }}"></div>
+      <div class="checkboxline"><label><input type="checkbox" name="approved_only" {% if tournament.approved_only %}checked{% endif %}> Bật duyệt bài member</label></div>
+    </div>
+    <label>Rule text</label><textarea name="rule_text" rows="5">{{ tournament.rule_text }}</textarea>
+    <label>Prize text</label><textarea name="prize_text" rows="4">{{ tournament.prize_text }}</textarea>
+    <label>Schedule JSON</label><textarea name="schedule_json" rows="8">{{ tournament.schedule_json }}</textarea>
+    <label>Points JSON</label><textarea name="points_json" rows="8">{{ tournament.points_json }}</textarea>
+    <button class="btn primary" type="submit">Lưu thay đổi</button>
+  </form>
+</section>
+{% endblock %}

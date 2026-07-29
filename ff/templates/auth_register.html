@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card auth-card">
+  <h1>Đăng ký</h1>
+  <form method="post" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Tên đăng nhập</label><input name="username" placeholder="ten_cua_ban">
+    <label>Tên hiển thị</label><input name="display_name" placeholder="Tên trong cộng đồng">
+    <label>Mật khẩu</label><input name="password" type="password" placeholder="ít nhất 6 ký tự">
+    <button class="btn primary" type="submit">Tạo tài khoản</button>
+  </form>
+</section>
+{% endblock %}

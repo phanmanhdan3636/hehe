@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card auth-card">
+  <h1>Sửa tài khoản</h1>
+  <form method="post" enctype="multipart/form-data" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Username</label><input name="username" value="{{ edit_user.username }}">
+    <label>Tên hiển thị</label><input name="display_name" value="{{ edit_user.display_name }}">
+    <label>Vai trò</label><select name="role"><option value="member" {% if edit_user.role == 'member' %}selected{% endif %}>member</option><option value="mod" {% if edit_user.role == 'mod' %}selected{% endif %}>mod</option><option value="admin" {% if edit_user.role == 'admin' %}selected{% endif %}>admin</option></select>
+    <label>Bio</label><textarea name="bio" rows="5">{{ edit_user.bio }}</textarea>
+    <label>Avatar mới</label><input type="file" name="avatar" accept="image/*">
+    <button class="btn primary" type="submit">Lưu tài khoản</button>
+  </form>
+</section>
+{% endblock %}

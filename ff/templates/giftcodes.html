@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="section-head"><div><h1>Kho Giftcode</h1><p>Mã quà, trạng thái, ngày hết hạn, người tạo</p></div></div>
+  <div class="list">
+    {% for g in giftcodes %}
+    <div class="minirow"><div><strong>{{ g.code }}</strong><div class="meta">{{ g.reward }} · hết hạn {{ g.expires_at }} · {{ g.status }} · bởi {{ g.creator_display_name }}</div></div><span class="tag small">{{ 'Còn hạn' if g.status == 'active' else 'Hết hạn' }}</span></div>
+    {% else %}<div class="empty">Chưa có giftcode.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

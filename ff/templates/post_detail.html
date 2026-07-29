@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="post-top">
+    <div class="left"><div class="tag">{{ post.category }}</div><h1>{{ post.title }}</h1><div class="meta">Bởi <a href="{{ url_for('profile', username=post.author_username) }}">{{ post.author_display_name }}</a> · {{ post.created_at | prettydate }} · {{ post.status }}</div></div>
+    <div class="stats-pill"><span>👍 {{ likes_count }}</span><span>💬 {{ comments|length }}</span></div>
+  </div>
+  <div class="post-body">
+    <p>{{ post.content }}</p>
+    {% if post.image %}<img class="post-image large" src="{{ media_url('posts', post.image) }}" alt="image">{% endif %}
+    {% if post.video_url %}<div class="video-link">Video: <a href="{{ post.video_url }}" target="_blank">{{ post.video_url }}</a></div>{% endif %}
+  </div>
+  <div class="actions">
+    {% if current_user %}<form method="post" action="{{ url_for('like_post', post_id=post.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn ghost" type="submit">{{ 'Bỏ like' if liked else 'Like' }}</button></form>{% endif %}
+    {% if current_user and (current_user.role in ['admin','mod'] or current_user.id == post.author_id) %}<a class="btn ghost" href="{{ url_for('edit_post', post_id=post.id) }}">Sửa</a><form method="post" action="{{ url_for('delete_post', post_id=post.id) }}" class="inline" onsubmit="return confirm('Xóa bài này?')"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn danger" type="submit">Xóa</button></form>{% endif %}
+  </div>
+</section>
+<section class="card">
+  <h2>Bình luận</h2>
+  {% if current_user %}
+  <form method="post" action="{{ url_for('comment', post_id=post.id) }}" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><textarea name="content" rows="4" placeholder="Viết bình luận..."></textarea><button class="btn primary" type="submit">Gửi bình luận</button></form>
+  {% else %}<div class="hint">Đăng nhập để bình luận.</div>{% endif %}
+  <div class="comments">
+    {% for c in comments %}
+    <article class="comment"><div class="comment-head">{% if c.avatar %}<img src="{{ media_url('avatars', c.avatar) }}" class="avatar-mini" alt="avatar">{% endif %}<div><strong>{{ c.display_name }}</strong><div class="meta">{{ c.created_at | prettydate }}</div></div></div><p>{{ c.content }}</p></article>
+    {% else %}<div class="empty">Chưa có bình luận nào.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

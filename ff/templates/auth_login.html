@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card auth-card">
+  <h1>Đăng nhập</h1>
+  <form method="post" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Tên đăng nhập</label><input name="username" placeholder="admin">
+    <label>Mật khẩu</label><input name="password" type="password" placeholder="admin123">
+    <button class="btn primary" type="submit">Đăng nhập</button>
+  </form>
+  <div class="hint">Demo: admin/admin123 · mod/mod123 · member/member123</div>
+</section>
+{% endblock %}

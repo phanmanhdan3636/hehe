@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('textarea').forEach(ta=>{ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart,e2=ta.selectionEnd;ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(e2);ta.selectionStart=ta.selectionEnd=s+2;}})})});

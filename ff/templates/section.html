@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="section-head"><div><h1>{{ section_title }}</h1><p>Bài viết theo chuyên mục</p></div><a class="btn primary" href="{{ url_for('create_post') }}">Đăng bài</a></div>
+  <div class="postlist">
+    {% for post in posts %}
+    <article class="post"><div class="tag">{{ post.category }}</div><h3><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h3><div class="meta">Bởi {{ post.author_display_name }} · {{ post.created_at | prettydate }}</div><p>{{ post.content }}</p></article>
+    {% else %}<div class="empty">Chưa có bài.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

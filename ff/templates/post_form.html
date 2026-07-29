@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="section-head"><div><h1>{{ title }}</h1><p>Chèn ảnh, video và phân loại bài</p></div></div>
+  <form method="post" enctype="multipart/form-data" class="form form-wide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Tiêu đề</label><input name="title" value="{{ post.title if post else '' }}" placeholder="Tiêu đề bài viết">
+    <div class="grid-2">
+      <div><label>Chuyên mục</label><select name="category">{% for cat in categories %}<option value="{{ cat }}" {% if post and post.category == cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select></div>
+      <div><label>Video URL</label><input name="video_url" value="{{ post.video_url if post else '' }}" placeholder="https://youtube.com/..."></div>
+    </div>
+    <label>Ảnh</label><input type="file" name="image" accept="image/*">
+    {% if post and post.image %}<div class="preview-note">Ảnh hiện tại: <a href="{{ media_url('posts', post.image) }}" target="_blank">{{ post.image }}</a></div>{% endif %}
+    <label>Nội dung</label><textarea name="content" rows="10" placeholder="Viết nội dung...">{{ post.content if post else '' }}</textarea>
+    {% if post and current_user and current_user.role in ['admin','mod'] %}<label>Trạng thái</label><select name="status"><option value="approved" {% if post.status == 'approved' %}selected{% endif %}>approved</option><option value="pending" {% if post.status == 'pending' %}selected{% endif %}>pending</option></select>{% endif %}
+    <button class="btn primary" type="submit">Lưu</button>
+  </form>
+</section>
+{% endblock %}

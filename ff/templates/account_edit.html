@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card auth-card">
+  <h1>Chỉnh hồ sơ</h1>
+  <form method="post" enctype="multipart/form-data" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Tên hiển thị</label><input name="display_name" value="{{ profile.display_name }}">
+    <label>Bio</label><textarea name="bio" rows="5">{{ profile.bio }}</textarea>
+    <label>Avatar</label><input type="file" name="avatar" accept="image/*">
+    <button class="btn primary" type="submit">Lưu hồ sơ</button>
+  </form>
+  <div class="hint">Admin có thể sửa tài khoản đầy đủ trong phần Admin.</div>
+</section>
+{% endblock %}

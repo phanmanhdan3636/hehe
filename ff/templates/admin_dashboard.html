@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid-2">
+  <div class="card">
+    <div class="section-head"><div><h1>Admin Dashboard</h1><p>Quản lý giải đấu, bài chờ duyệt, tài khoản và giftcode</p></div><a class="btn primary" href="{{ url_for('admin_tournament') }}">Sửa giải đấu</a></div>
+    <div class="stats-grid">
+      <div class="mini-stat"><strong>{{ users|length }}</strong><span>Tài khoản</span></div>
+      <div class="mini-stat"><strong>{{ pending_posts|length }}</strong><span>Bài chờ duyệt</span></div>
+      <div class="mini-stat"><strong>{{ giftcodes|length }}</strong><span>Giftcode</span></div>
+    </div>
+    <div class="card inner">
+      <h2>Tạo giftcode</h2>
+      <form method="post" action="{{ url_for('create_giftcode') }}" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input name="code" placeholder="FFHUB-2026"><input name="reward" placeholder="Quà tặng"><input type="date" name="expires_at"><button class="btn primary" type="submit">Tạo mã</button></form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-head"><div><h2>Bài chờ duyệt</h2><p>Member sẽ vào đây nếu kiểm duyệt bật</p></div></div>
+    <div class="list">
+      {% for post in pending_posts %}
+      <div class="minirow"><div><strong>{{ post.title }}</strong><div class="meta">{{ post.category }} · {{ post.author_display_name }} · {{ post.created_at | prettydate }}</div></div><div class="actions"><a class="btn ghost" href="{{ url_for('post_detail', post_id=post.id) }}">Mở</a><a class="btn ghost" href="{{ url_for('edit_post', post_id=post.id) }}">Sửa</a></div></div>
+      {% else %}<div class="empty">Không có bài chờ duyệt.</div>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="card">
+  <div class="section-head"><div><h2>Quản lý tài khoản</h2><p>Tạo mod/member, chỉnh hồ sơ, đổi vai trò, reset mật khẩu</p></div><div class="actions"><a class="btn primary" href="{{ url_for('admin_users') }}">Mở trang quản lý</a><a class="btn ghost" href="{{ url_for('admin_tournament') }}">Tài khoản giải đấu</a></div></div>
+  <div class="list">
+    {% for u in users[:8] %}
+    <div class="minirow"><div class="userline">{% if u.avatar %}<img src="{{ media_url('avatars', u.avatar) }}" class="avatar-mini" alt="avatar">{% endif %}<div><strong>{{ u.display_name }}</strong><div class="meta">@{{ u.username }} · {{ u.role }}</div></div></div><a class="btn ghost" href="{{ url_for('admin_edit_user', user_id=u.id) }}">Sửa</a></div>
+    {% endfor %}
+  </div>
+</section>
+<section class="card">
+  <div class="section-head"><div><h2>Thông số giải đấu</h2><p>Chỉnh ở đây hoặc trang riêng</p></div><a class="btn ghost" href="{{ url_for('admin_tournament') }}">Mở editor</a></div>
+  <div class="grid-2"><div class="mini-stat"><strong>{{ tournament.title }}</strong><span>{{ tournament.season }}</span></div><div class="mini-stat"><strong>{{ tournament.current_stage }}</strong><span>{{ tournament.status }}</span></div></div>
+</section>
+<section class="card">
+  <div class="section-head"><div><h2>Giftcode gần đây</h2><p>Danh sách nhanh</p></div><a href="{{ url_for('giftcodes_page') }}">Trang giftcode</a></div>
+  <div class="list">
+    {% for g in giftcodes[:6] %}
+    <div class="minirow"><div><strong>{{ g.code }}</strong><div class="meta">{{ g.reward }} · {{ g.expires_at }} · {{ g.status }} · bởi {{ g.creator_display_name }}</div></div><span class="tag small">{{ 'Còn hạn' if g.status == 'active' else 'Hết hạn' }}</span></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

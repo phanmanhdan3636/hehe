@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card profile-head">
+  <div class="profile-top">
+    {% if profile.avatar %}<img class="avatar-big" src="{{ media_url('avatars', profile.avatar) }}" alt="avatar">{% else %}<div class="avatar-big placeholder">{{ profile.display_name[:1] | upper }}</div>{% endif %}
+    <div>
+      <div class="tag">{{ profile.role }}</div>
+      <h1>{{ profile.display_name }}</h1>
+      <div class="meta">@{{ profile.username }} · tham gia {{ profile.created_at | prettydate }}</div>
+      <p>{{ profile.bio or 'Chưa có bio.' }}</p>
+      {% if current_user and current_user.id == profile.id %}<a class="btn primary" href="{{ url_for('edit_my_account') }}">Chỉnh hồ sơ</a>{% endif %}
+    </div>
+  </div>
+</section>
+<section class="card">
+  <h2>Bài viết của {{ profile.display_name }}</h2>
+  <div class="postlist">
+    {% for post in posts %}
+    <article class="post"><div class="tag">{{ post.category }}</div><h3><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h3><div class="meta">{{ post.created_at | prettydate }}</div><p>{{ post.content }}</p></article>
+    {% else %}<div class="empty">Chưa có bài viết công khai nào.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}
