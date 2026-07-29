@@ -238,7 +238,7 @@ def chatbot_reply(user_input, logged_in):
         results = res_pub
     if results:
         
-        answers = [r for r, _ in results]
+        answers = [r.split(":", 1)[-1].strip() for r, _ in results]
         return "\n- " + "\n- ".join(answers)
 
     return None
