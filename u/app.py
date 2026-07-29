@@ -149,30 +149,49 @@ def hoc_them(question, answer):
     append_line(FILE_PUBLIC, "---")
 
 def tim_kiem_nang_cao(query, data):
-    query = query.lower()
+    query = query.lower().strip()
     keywords = query.split()
-
+    
     results = []
-
+    
     for line in data:
-        line_low = line.lower()
-
-        # bắt buộc có ít nhất 1 keyword
-        if not any(kw in line_low for kw in keywords):
+        line_clean = line.strip()
+        if not line_clean:
             continue
-
-        score = difflib.SequenceMatcher(None, query, line_low).ratio()
-
-        # tăng điểm keyword
-        for kw in keywords:
-            if kw in line_low:
-                score += 0.2
-
-        if score > 0.8:
-            results.append((line, score))
-
+            
+        # Kiểm tra xem dòng dữ liệu có cấu trúc "Câu hỏi : Câu trả lời" hay không
+        if ":" in line_clean:
+            parts = line_clean.split(":", 1)
+            cau_hoi_mau = parts[0].strip().lower()
+            cau_tra_ lời = parts[1].strip()
+            
+            # Tính độ khớp riêng giữa câu người dùng nhập (query) và câu hỏi mẫu (cau_hoi_mau)
+            score = diffib.SequenceMatcher(None, query, cau_hoi_mau).ratio()
+            
+            # Tăng điểm nếu có từ khóa xuất hiện
+            for kw in keywords:
+                if kw in cau_hoi_mau:
+                    score += 0.1
+                    
+            # Nếu người dùng nhập khớp câu hỏi mẫu từ 80% trở lên
+            if score >= 0.8:
+                # Lưu lại phần câu trả lời (hoặc cả dòng tùy ý, ở đây ta lưu câu trả lời hoặc định dạng lại)
+                # Để tương thích với đoạn code phía dưới (r.split(":", 1)), ta giữ nguyên dạng "Hỏi: Đáp" hoặc trả về phần đáp án luôn.
+                results.append((line_clean, score))
+        else:
+            # Nếu dòng dữ liệu không có dấu `:`, dùng cách tìm kiếm cũ như bình thường
+            line_low = line_clean.lower()
+            score = diffib.SequenceMatcher(None, query, line_low).ratio()
+            for kw in keywords:
+                if kw in line_low:
+                    score += 0.2
+            if score > 0.8:
+                results.append((line_clean, score))
+                
+    # Sắp xếp theo điểm số giảm dần
     results.sort(key=lambda x: x[1], reverse=True)
-    return results[:1]   # 👈 giảm xuống 1-2 kết quả thôi
+    return results[:1]  # Lấy 1 kết quả tốt nhất
+
 
 def tra_loi_random():
     return random.choice([
