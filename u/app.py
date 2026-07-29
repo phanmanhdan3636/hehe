@@ -151,7 +151,6 @@ def hoc_them(question, answer):
 def tim_kiem_nang_cao(query, data):
     query = query.lower().strip()
     keywords = query.split()
-    
     results = []
     
     for line in data:
@@ -159,27 +158,26 @@ def tim_kiem_nang_cao(query, data):
         if not line_clean:
             continue
             
-        # Kiểm tra xem dòng dữ liệu có cấu trúc "Câu hỏi : Câu trả lời" hay không
+        # Kiểm tra xem dòng dữ liệu có chứa dấu hai chấm phân tách câu hỏi và trả lời không
         if ":" in line_clean:
             parts = line_clean.split(":", 1)
             cau_hoi_mau = parts[0].strip().lower()
-            cau_tra_ lời = parts[1].strip()
+            cau_tra_loi = parts[1].strip() # Phần sau dấu hai chấm
             
-            # Tính độ khớp riêng giữa câu người dùng nhập (query) và câu hỏi mẫu (cau_hoi_mau)
+            # Tính độ khớp giữa câu người dùng nhập (query) và câu hỏi mẫu (cau_hoi_mau)
             score = diffib.SequenceMatcher(None, query, cau_hoi_mau).ratio()
             
-            # Tăng điểm nếu có từ khóa xuất hiện
+            # Tăng nhẹ điểm nếu có từ khóa trùng khớp
             for kw in keywords:
                 if kw in cau_hoi_mau:
                     score += 0.1
                     
-            # Nếu người dùng nhập khớp câu hỏi mẫu từ 80% trở lên
+            # Nếu người dùng nhập đúng khoảng 80% - 100% câu hỏi
             if score >= 0.8:
-                # Lưu lại phần câu trả lời (hoặc cả dòng tùy ý, ở đây ta lưu câu trả lời hoặc định dạng lại)
-                # Để tương thích với đoạn code phía dưới (r.split(":", 1)), ta giữ nguyên dạng "Hỏi: Đáp" hoặc trả về phần đáp án luôn.
-                results.append((line_clean, score))
+                # Ta lưu thẳng phần câu trả lời (hoặc lưu dạng "Hỏi: Đáp" tùy ý, nhưng ở đây lưu thẳng câu trả lời luôn cho tiện)
+                results.append((cau_tra_loi, score))
         else:
-            # Nếu dòng dữ liệu không có dấu `:`, dùng cách tìm kiếm cũ như bình thường
+            # Dòng nào không có dấu hai chấm (dữ liệu thông thường) thì dùng cách so khớp cũ
             line_low = line_clean.lower()
             score = diffib.SequenceMatcher(None, query, line_low).ratio()
             for kw in keywords:
@@ -188,9 +186,9 @@ def tim_kiem_nang_cao(query, data):
             if score > 0.8:
                 results.append((line_clean, score))
                 
-    # Sắp xếp theo điểm số giảm dần
+    # Sắp xếp theo điểm số từ cao xuống thấp
     results.sort(key=lambda x: x[1], reverse=True)
-    return results[:1]  # Lấy 1 kết quả tốt nhất
+    return results[:1] # Lấy kết quả tốt nhất
 
 
 def tra_loi_random():
@@ -239,10 +237,12 @@ def chatbot_reply(user_input, logged_in):
     else:
         results = res_pub
     if results:
-        answers = [r.split(":", 1)[-1].strip() for r, _ in results]
+        
+        answers = [r for r, _ in results]
         return "\n- " + "\n- ".join(answers)
 
     return None
+
 
 # =============================
 # DIRECT MESSAGES
