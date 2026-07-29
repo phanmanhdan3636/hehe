@@ -168,7 +168,7 @@ def tim_kiem_nang_cao(query, data):
             if kw in line_low:
                 score += 0.2
 
-        if score > 0.5:
+        if score > 0.8:
             results.append((line, score))
 
     results.sort(key=lambda x: x[1], reverse=True)
