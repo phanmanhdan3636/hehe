@@ -17,10 +17,10 @@ khối chiều(lớp 6-8) 12h00-4h20
 ---
 Hello👋, chào bạn, bạn cần tra cứu gì nào?
 --- 
-Tên trường là Trường Trung Học Cơ Sở Trà Ôn(trước đây là Trường Trung Học Cơ Sở thị trấn Trà Ôn khi chưa sáp nhập)
+Tên trường:Tên trường là Trường Trung Học Cơ Sở Trà Ôn(trước đây là Trường Trung Học Cơ Sở thị trấn Trà Ôn khi chưa sáp nhập)
 --- 
 Xem điểm:Hiện tại hệ thống chưa được cấp quyền để xem điểm, nhưng bạn có cần tính tổng điểm cuối năm của 1/nhiều môn không? 
-
+---
 1+1=?: 3
 ---
 nà ná na:anh phùng thanh độ
@@ -28,3 +28,4 @@ nà ná na:anh phùng thanh độ
 anh độ mixi:phùng thanh độ anh độ mixi
 ---
 cảm ơn ah ah độ mixi: xiiiiii
+---
