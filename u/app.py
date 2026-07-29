@@ -9,7 +9,9 @@ import difflib
 # CONFIG
 # =============================
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = "/storage/emulated/0"
+DATA_DIR = os.path.join(APP_DIR, "data36")
+
+os.makedirs(DATA_DIR, exist_ok=True)
 if not os.path.isdir(DATA_DIR):
     DATA_DIR = APP_DIR
 
