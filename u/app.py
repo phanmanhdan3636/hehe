@@ -172,7 +172,7 @@ def tim_kiem_nang_cao(query, data):
             results.append((line, score))
 
     results.sort(key=lambda x: x[1], reverse=True)
-    return results[:2]   # 👈 giảm xuống 1-2 kết quả thôi
+    return results[:1]   # 👈 giảm xuống 1-2 kết quả thôi
 
 def tra_loi_random():
     return random.choice([
