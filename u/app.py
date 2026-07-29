@@ -185,7 +185,7 @@ def tim_kiem_nang_cao(query, data):
         except Exception:
             continue  # Bỏ qua dòng lỗi để không làm sập toàn bộ bot
             
-    results.sort(key=lambda x: x[1], reverse=True)
+    results.sort(key=lambda x: x[0], reverse=True)
     return results[:1]
 
 
