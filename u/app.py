@@ -147,7 +147,6 @@ def load_data(path):
 def hoc_them(question, answer):
     append_line(FILE_PUBLIC, f"{question}: {answer}")
     append_line(FILE_PUBLIC, "---")
-
 def tim_kiem_nang_cao(query, data):
     query = query.lower().strip()
     keywords = query.split()
@@ -158,37 +157,36 @@ def tim_kiem_nang_cao(query, data):
         if not line_clean:
             continue
             
-        # Kiểm tra xem dòng dữ liệu có chứa dấu hai chấm phân tách câu hỏi và trả lời không
-        if ":" in line_clean:
-            parts = line_clean.split(":", 1)
-            cau_hoi_mau = parts[0].strip().lower()
-            cau_tra_loi = parts[1].strip() # Phần sau dấu hai chấm
-            
-            # Tính độ khớp giữa câu người dùng nhập (query) và câu hỏi mẫu (cau_hoi_mau)
-            score = diffib.SequenceMatcher(None, query, cau_hoi_mau).ratio()
-            
-            # Tăng nhẹ điểm nếu có từ khóa trùng khớp
-            for kw in keywords:
-                if kw in cau_hoi_mau:
-                    score += 0.1
-                    
-            # Nếu người dùng nhập đúng khoảng 80% - 100% câu hỏi
-            if score >= 0.8:
-                # Ta lưu thẳng phần câu trả lời (hoặc lưu dạng "Hỏi: Đáp" tùy ý, nhưng ở đây lưu thẳng câu trả lời luôn cho tiện)
-                results.append((cau_tra_loi, score))
-        else:
-            # Dòng nào không có dấu hai chấm (dữ liệu thông thường) thì dùng cách so khớp cũ
-            line_low = line_clean.lower()
-            score = diffib.SequenceMatcher(None, query, line_low).ratio()
-            for kw in keywords:
-                if kw in line_low:
-                    score += 0.2
-            if score > 0.8:
-                results.append((line_clean, score))
+        try:
+            if ":" in line_clean:
+                parts = line_clean.split(":", 1)
+                cau_hoi_mau = parts[0].strip().lower()
+                cau_tra_loi = parts[1].strip()
                 
-    # Sắp xếp theo điểm số từ cao xuống thấp
+                # Tính độ khớp chuỗi
+                score = difflib.SequenceMatcher(None, query, cau_hoi_mau).ratio()
+                
+                # Cộng điểm nếu từ khóa khớp
+                for kw in keywords:
+                    if kw in cau_hoi_mau:
+                        score += 0.1
+                        
+                # Hạ ngưỡng xuống 0.4 để dễ nhận diện hơn (hoặc chỉnh tùy ý)
+                if score >= 0.4:
+                    results.append((cau_tra_loi, score))
+            else:
+                line_low = line_clean.lower()
+                score = difflib.SequenceMatcher(None, query, line_low).ratio()
+                for kw in keywords:
+                    if kw in line_low:
+                        score += 0.2
+                if score >= 0.4:
+                    results.append((line_clean, score))
+        except Exception:
+            continue  # Bỏ qua dòng lỗi để không làm sập toàn bộ bot
+            
     results.sort(key=lambda x: x[1], reverse=True)
-    return results[:1] # Lấy kết quả tốt nhất
+    return results[:1]
 
 
 def tra_loi_random():
@@ -229,19 +227,22 @@ def chatbot_reply(user_input, logged_in):
     public_data = load_data(FILE_PUBLIC)
     private_data = load_data(FILE_PRIVATE)
 
-    res_pri = tim_kiem_nang_cao(txt, private_data)
-    res_pub = tim_kiem_nang_cao(txt, public_data)
+        # Tìm kiếm ở private và public
+    res_pri = tim_kiem_nang_cao(txt, private_data) if 'private_data' in locals() else []
+    res_pub = tim_kiem_nang_cao(txt, public_data) if 'public_data' in locals() else []
 
     if is_logged_in:
         results = res_pri + res_pub
     else:
         results = res_pub
-    if results:
         
-        answers = [r.split(":", 1)[-1].strip() for r, _ in results]
+    if results:
+        # Lấy trực tiếp nội dung kết quả trả về
+        answers = [r for r, _ in results]
         return "\n- " + "\n- ".join(answers)
-
-    return None
+    else:
+        # Không khớp thì gọi hàm random cho bot nói chuyện
+        return tra_loi_random()
 
 
 # =============================
