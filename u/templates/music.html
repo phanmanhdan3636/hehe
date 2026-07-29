@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music</title>
+<style>
+  :root{
+    --bg:#0b0f14;
+    --panel:#11161d;
+    --panel2:#151b24;
+    --line:rgba(255,255,255,.08);
+    --text:#f3f7fb;
+    --muted:#98a6b5;
+    --green:#1db954;
+    --green2:#2ee66b;
+    --shadow:0 18px 60px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(29,185,84,.14), transparent 28%),
+      radial-gradient(circle at top right, rgba(29,185,84,.08), transparent 24%),
+      linear-gradient(180deg, #090c11 0%, #0b0f14 100%);
+    color:var(--text);
+    min-height:100vh;
+  }
+
+  .app{
+    display:grid;
+    grid-template-columns:280px 1fr;
+    min-height:100vh;
+  }
+
+  .sidebar{
+    background:rgba(0,0,0,.72);
+    border-right:1px solid var(--line);
+    padding:22px;
+    backdrop-filter: blur(14px);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px;
+    border-radius:22px;
+    background:linear-gradient(135deg, rgba(29,185,84,.15), rgba(255,255,255,.03));
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+
+  .logo{
+    width:52px;height:52px;border-radius:18px;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg, var(--green), #22d36f);
+    font-size:24px;
+    box-shadow:0 12px 30px rgba(29,185,84,.25);
+  }
+
+  .brand strong{display:block;font-size:18px}
+  .brand span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+
+  .sidebar .section-title{
+    color:#dfe8f1;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    margin:18px 0 10px;
+  }
+
+  .nav{
+    display:grid;
+    gap:10px;
+  }
+
+  .nav a, .nav button{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    border:none;
+    text-decoration:none;
+    color:var(--text);
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    padding:13px 14px;
+    border-radius:16px;
+    cursor:pointer;
+    text-align:left;
+    transition:.18s transform,.18s background,.18s border-color;
+    font-size:14px;
+  }
+  .nav a:hover, .nav button:hover{
+    transform:translateY(-1px);
+    background:rgba(255,255,255,.06);
+    border-color:rgba(29,185,84,.28);
+  }
+  .nav .active{
+    background:linear-gradient(135deg, rgba(29,185,84,.22), rgba(29,185,84,.08));
+    border-color:rgba(29,185,84,.3);
+  }
+
+  .sidebar-card{
+    margin-top:18px;
+    padding:14px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+  }
+  .sidebar-card .small{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.6;
+  }
+
+  .main{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:18px 22px;
+    background:rgba(11,15,20,.82);
+    border-bottom:1px solid var(--line);
+    backdrop-filter: blur(16px);
+  }
+
+  .title h1{
+    margin:0;
+    font-size:24px;
+  }
+  .title p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .top-actions button, .top-actions a{
+    text-decoration:none;
+    color:var(--text);
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:11px 14px;
+    cursor:pointer;
+    transition:.18s transform,.18s background;
+    font-size:14px;
+  }
+  .top-actions button:hover, .top-actions a:hover{
+    transform:translateY(-1px);
+    background:rgba(255,255,255,.08);
+  }
+  .btn-green{
+    background:linear-gradient(135deg, var(--green), #16a34a) !important;
+    border-color:transparent !important;
+    color:#fff !important;
+  }
+
+  .content{
+    padding:18px;
+    display:grid;
+    grid-template-columns: 1.3fr .9fr;
+    gap:18px;
+    flex:1;
+    min-width:0;
+  }
+
+  .card{
+    background:rgba(17,22,29,.92);
+    border:1px solid var(--line);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  .card-header{
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.03);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .card-header h2{
+    margin:0;
+    font-size:16px;
+  }
+
+  .search-wrap{
+    padding:14px 18px 0;
+  }
+  .search{
+    width:100%;
+    background:#0b1118;
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:13px 14px;
+    outline:none;
+    font-size:14px;
+  }
+  .search:focus{
+    border-color:rgba(29,185,84,.5);
+    box-shadow:0 0 0 3px rgba(29,185,84,.09);
+  }
+
+  .body{
+    padding:18px;
+  }
+
+  .hero{
+    border-radius:22px;
+    padding:18px;
+    background:
+      linear-gradient(135deg, rgba(29,185,84,.18), rgba(255,255,255,.03)),
+      radial-gradient(circle at top right, rgba(255,255,255,.08), transparent 35%);
+    border:1px solid var(--line);
+    margin-bottom:16px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+  }
+
+  .hero h3{
+    margin:0 0 8px;
+    font-size:20px;
+  }
+  .hero p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.6;
+    max-width:58ch;
+  }
+
+  .chip-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+  .chip{
+    padding:7px 11px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);
+    color:#dbe6f1;
+    font-size:12px;
+  }
+
+  .playlist-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(190px, 1fr));
+    gap:14px;
+  }
+
+  .playlist-card{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:14px;
+    cursor:pointer;
+    transition:.18s transform,.18s border-color,.18s background;
+  }
+  .playlist-card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(29,185,84,.35);
+    background:linear-gradient(180deg, rgba(29,185,84,.10), rgba(255,255,255,.03));
+  }
+  .playlist-card.active{
+    border-color:rgba(29,185,84,.6);
+    box-shadow:0 0 0 1px rgba(29,185,84,.2);
+  }
+
+  .cover{
+    width:100%;
+    aspect-ratio:1;
+    border-radius:18px;
+    display:grid;
+    place-items:center;
+    font-size:34px;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,.22), transparent 30%),
+      linear-gradient(135deg, rgba(29,185,84,.95), rgba(17,24,39,.92));
+    box-shadow:0 14px 30px rgba(0,0,0,.22);
+    margin-bottom:12px;
+  }
+
+  .playlist-card h4{
+    margin:0 0 6px;
+    font-size:15px;
+  }
+  .playlist-card .meta{
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .songs-wrap{
+    margin-top:18px;
+    display:grid;
+    gap:10px;
+  }
+
+  .song{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 15px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    cursor:pointer;
+    transition:.16s transform,.16s background,.16s border-color;
+  }
+  .song:hover{
+    transform:translateY(-1px);
+    background:rgba(29,185,84,.09);
+    border-color:rgba(29,185,84,.22);
+  }
+  .song strong{
+    display:block;
+    font-size:14px;
+    margin-bottom:3px;
+  }
+  .song span{
+    color:var(--muted);
+    font-size:12px;
+  }
+  .song .playtag{
+    min-width:44px;
+    text-align:center;
+    padding:8px 10px;
+    border-radius:999px;
+    background:rgba(29,185,84,.15);
+    color:#d9ffe6;
+    border:1px solid rgba(29,185,84,.18);
+    font-size:12px;
+  }
+
+  .player{
+    position:sticky;
+    bottom:0;
+    z-index:4;
+    border-top:1px solid var(--line);
+    background:rgba(10,14,20,.94);
+    backdrop-filter: blur(16px);
+    padding:14px 18px;
+  }
+
+  .player-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 1fr .9fr;
+    gap:14px;
+    align-items:center;
+  }
+
+  .now{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    min-width:0;
+  }
+
+  .mini-cover{
+    width:58px;
+    height:58px;
+    border-radius:16px;
+    background:linear-gradient(135deg, rgba(29,185,84,.9), rgba(124,58,237,.85));
+    display:grid;
+    place-items:center;
+    font-size:24px;
+    flex:0 0 auto;
+    box-shadow:0 10px 26px rgba(29,185,84,.18);
+  }
+
+  .now-text{
+    min-width:0;
+  }
+  .now-text b{
+    display:block;
+    font-size:14px;
+    margin-bottom:3px;
+  }
+  .now-text small{
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .controls button{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.05);
+    color:var(--text);
+    cursor:pointer;
+    transition:.16s transform,.16s background;
+  }
+  .controls button:hover{
+    transform:translateY(-1px);
+    background:rgba(255,255,255,.08);
+  }
+  .controls .mainplay{
+    width:auto;
+    border-radius:999px;
+    padding:0 16px;
+    background:linear-gradient(135deg, var(--green), #16a34a);
+    color:#fff;
+    border:none;
+    font-weight:700;
+  }
+
+  .rightbox{
+    display:grid;
+    gap:10px;
+    justify-items:stretch;
+  }
+
+  .toggle{
+    width:100%;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.05);
+    color:var(--text);
+    padding:12px 14px;
+    border-radius:16px;
+    cursor:pointer;
+  }
+
+  audio{
+    width:100%;
+    margin-top:8px;
+  }
+
+  .hint{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.7;
+    margin-top:10px;
+  }
+
+  .empty{
+    padding:18px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px dashed rgba(255,255,255,.12);
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width: 1050px){
+    .app{grid-template-columns:1fr}
+    .sidebar{position:relative}
+    .content{grid-template-columns:1fr}
+    .player-grid{grid-template-columns:1fr}
+  }
+
+  @media (max-width: 640px){
+    .topbar{padding:14px 16px;flex-direction:column;align-items:flex-start}
+    .content{padding:14px}
+    .sidebar{padding:16px}
+    .playlist-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">🎧</div>
+      <div>
+        <strong>My Music</strong>
+        <span>Dark mode playlist</span>
+      </div>
+    </div>
+
+    <div class="section-title">Điều hướng</div>
+    <div class="nav">
+      <a href="/">🏠 Trang chủ</a>
+      <a href="/">💬 Chat</a>
+      <button onclick="setMode('order')" id="orderBtn">▶ Phát theo thứ tự</button>
+      <button onclick="setMode('random')" id="randomBtn">🔀 Random</button>
+      <button onclick="playCurrent()">⏯ Play / Pause</button>
+    </div>
+
+    <div class="sidebar-card">
+      <div style="font-weight:700;margin-bottom:6px">Chế độ hiện tại</div>
+      <div class="small" id="modeText">order</div>
+      <div class="small" style="margin-top:10px">
+        Bấm playlist bên phải để mở nhạc theo folder/ca sĩ.
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div style="font-weight:700;margin-bottom:6px">Mẹo</div>
+      <div class="small">
+        File nhạc nên đặt trong <b>static/music/ten_playlist/</b><br>
+        Ví dụ: <b>static/music/Ngot/baihat1.mp3</b>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="title">
+        <h1>Music Library</h1>
+        <p>Spotify vibe, cùng tone với giao diện ngoài.</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn-green" onclick="playRandom()">🎲 Random bài</button>
+        <a href="/logout">Đăng xuất</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="card">
+        <div class="card-header">
+          <h2>Danh sách playlist</h2>
+          <div style="color:var(--muted);font-size:12px" id="playlistCount">0 playlist</div>
+        </div>
+
+        <div class="search-wrap">
+          <input id="searchBox" class="search" placeholder="Tìm playlist hoặc bài hát..." oninput="renderAll()">
+        </div>
+
+        <div class="body">
+          <div class="hero">
+            <div>
+              <h3 id="heroTitle">Chọn một playlist</h3>
+              <p id="heroDesc">Bên dưới là các folder nhạc của bạn. Bấm vào để mở danh sách bài hát.</p>
+              <div class="chip-row">
+                <div class="chip">Dark theme</div>
+                <div class="chip">Playlist</div>
+                <div class="chip">Random</div>
+                <div class="chip">Auto next</div>
+              </div>
+            </div>
+            <div class="chip" id="heroStat">0 bài</div>
+          </div>
+
+          <div class="playlist-grid" id="playlistGrid"></div>
+
+          <div class="songs-wrap" id="songsWrap">
+            <div class="empty">Chưa chọn playlist nào.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Đang phát</h2>
+          <div style="color:var(--muted);font-size:12px" id="statusTag">ready</div>
+        </div>
+
+        <div class="body">
+          <div class="card" style="background:rgba(255,255,255,.03);box-shadow:none;margin-bottom:14px">
+            <div style="padding:16px">
+              <div class="now">
+                <div class="mini-cover">♫</div>
+                <div class="now-text">
+                  <b id="nowTitle">Chưa phát</b>
+                  <small id="nowSub">Chọn một bài để nghe</small>
+                </div>
+              </div>
+              <audio id="audio" controls></audio>
+            </div>
+          </div>
+
+          <div class="player-grid">
+            <div class="rightbox">
+              <button class="toggle" onclick="prevSong()">⏮ Bài trước</button>
+              <button class="toggle" onclick="nextSong()">⏭ Bài tiếp</button>
+              <button class="toggle" onclick="toggleLoop()">🔁 Loop: <span id="loopText">on</span></button>
+            </div>
+
+            <div class="rightbox">
+              <button class="toggle" onclick="setMode('order')">▶ Thứ tự</button>
+              <button class="toggle" onclick="setMode('random')">🔀 Random</button>
+              <button class="toggle" onclick="shuffleCurrent()">✨ Xáo playlist</button>
+            </div>
+
+            <div class="rightbox">
+              <div class="hint">
+                • Tự phát bài tiếp theo khi hết<br>
+                • Random sẽ chọn bài bất kỳ trong playlist đang mở<br>
+                • Nếu không thấy bài hát, kiểm tra thư mục <b>static/music</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="player">
+      <div class="player-grid">
+        <div class="now">
+          <div class="mini-cover">♪</div>
+          <div class="now-text">
+            <b id="bottomTitle">Chưa phát</b>
+            <small id="bottomSub">Music player</small>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button onclick="prevSong()">⏮</button>
+          <button class="mainplay" onclick="playCurrent()">▶ / ⏸</button>
+          <button onclick="nextSong()">⏭</button>
+        </div>
+
+        <div class="rightbox">
+          <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:12px">
+            <span>Âm lượng</span>
+            <span id="volVal">100%</span>
+          </div>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="1" oninput="setVolume(this.value)">
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const playlists = {{ playlists | tojson }};
+let currentPlaylistName = null;
+let currentPlaylist = [];
+let currentIndex = 0;
+let mode = "order";
+let loopOn = true;
+
+const audio = document.getElementById("audio");
+
+function setVolume(v){
+  audio.volume = parseFloat(v);
+  document.getElementById("volVal").innerText = Math.round(v * 100) + "%";
+}
+
+function setMode(m){
+  mode = m;
+  document.getElementById("modeText").innerText = mode;
+  document.getElementById("orderBtn").classList.toggle("active", mode === "order");
+  document.getElementById("randomBtn").classList.toggle("active", mode === "random");
+}
+
+function toggleLoop(){
+  loopOn = !loopOn;
+  audio.loop = loopOn;
+  document.getElementById("loopText").innerText = loopOn ? "on" : "off";
+}
+
+function normalizeData(){
+  const out = {};
+  for (const playlistName in playlists){
+    out[playlistName] = playlists[playlistName].map(song => ({
+      title: song.title || song.name || "Untitled",
+      file: song.file
+    }));
+  }
+  return out;
+}
+
+const data = normalizeData();
+
+function renderAll(){
+  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+  const grid = document.getElementById("playlistGrid");
+  grid.innerHTML = "";
+
+  let count = 0;
+
+  for (const name in data){
+    const songs = data[name];
+    const playlistMatch = name.toLowerCase().includes(q);
+    const songMatch = songs.some(s => s.title.toLowerCase().includes(q));
+
+    if (q && !playlistMatch && !songMatch) continue;
+
+    count++;
+
+    const card = document.createElement("div");
+    card.className = "playlist-card" + (name === currentPlaylistName ? " active" : "");
+    card.onclick = () => openPlaylist(name);
+
+    card.innerHTML = `
+      <div class="cover">${name.charAt(0).toUpperCase()}</div>
+      <h4>${escapeHtml(name)}</h4>
+      <div class="meta">${songs.length} bài hát</div>
+    `;
+    grid.appendChild(card);
+  }
+
+  document.getElementById("playlistCount").innerText = count + " playlist";
+  if (count === 0){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Không tìm thấy gì cả.</div>`;
+  }
+}
+
+function openPlaylist(name){
+  currentPlaylistName = name;
+  currentPlaylist = data[name] || [];
+  currentIndex = 0;
+
+  const heroTitle = document.getElementById("heroTitle");
+  const heroDesc = document.getElementById("heroDesc");
+  const heroStat = document.getElementById("heroStat");
+
+  heroTitle.innerText = name;
+  heroDesc.innerText = "Playlist này có " + currentPlaylist.length + " bài. Bấm một bài để phát ngay.";
+  heroStat.innerText = currentPlaylist.length + " bài";
+
+  renderSongs();
+  renderAll();
+  if (currentPlaylist.length) playSong(0);
+}
+
+function renderSongs(){
+  const wrap = document.getElementById("songsWrap");
+  wrap.innerHTML = "";
+
+  if (!currentPlaylist.length){
+    wrap.innerHTML = `<div class="empty">Playlist này chưa có bài hát.</div>`;
+    return;
+  }
+
+  currentPlaylist.forEach((song, i) => {
+    const div = document.createElement("div");
+    div.className = "song";
+    div.onclick = () => playSong(i);
+    div.innerHTML = `
+      <div>
+        <strong>${escapeHtml(song.title)}</strong>
+        <span>${escapeHtml(currentPlaylistName)}</span>
+      </div>
+      <div class="playtag">${i + 1}</div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function playSong(i){
+  if (!currentPlaylist.length) return;
+  currentIndex = i;
+  const song = currentPlaylist[currentIndex];
+  audio.src = song.file;
+  audio.load();
+  audio.play();
+
+  document.getElementById("nowTitle").innerText = song.title;
+  document.getElementById("nowSub").innerText = currentPlaylistName;
+  document.getElementById("bottomTitle").innerText = song.title;
+  document.getElementById("bottomSub").innerText = currentPlaylistName;
+  document.getElementById("statusTag").innerText = mode === "random" ? "random" : "order";
+}
+
+function playCurrent(){
+  if (!audio.src) {
+    if (currentPlaylist.length) {
+      playSong(currentIndex);
+    }
+    return;
+  }
+  if (audio.paused) audio.play();
+  else audio.pause();
+}
+
+function nextSong(){
+  if (!currentPlaylist.length) return;
+
+  if (mode === "random"){
+    if (currentPlaylist.length === 1) return playSong(0);
+    let next = Math.floor(Math.random() * currentPlaylist.length);
+    if (next === currentIndex) next = (next + 1) % currentPlaylist.length;
+    playSong(next);
+    return;
+  }
+
+  const next = (currentIndex + 1) % currentPlaylist.length;
+  playSong(next);
+}
+
+function prevSong(){
+  if (!currentPlaylist.length) return;
+  const prev = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+  playSong(prev);
+}
+
+function playRandom(){
+  const names = Object.keys(data);
+  if (!names.length) return;
+
+  const randomPlaylist = names[Math.floor(Math.random() * names.length)];
+  openPlaylist(randomPlaylist);
+
+  if (currentPlaylist.length){
+    const idx = Math.floor(Math.random() * currentPlaylist.length);
+    playSong(idx);
+  }
+}
+
+function shuffleCurrent(){
+  if (!currentPlaylist.length) return;
+  for (let i = currentPlaylist.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [currentPlaylist[i], currentPlaylist[j]] = [currentPlaylist[j], currentPlaylist[i]];
+  }
+  renderSongs();
+}
+
+audio.addEventListener("ended", () => {
+  if (loopOn) {
+    nextSong();
+  } else {
+    nextSong();
+  }
+});
+
+function escapeHtml(text){
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+setMode("order");
+setVolume(1);
+renderAll();
+if (Object.keys(data).length){
+  openPlaylist(Object.keys(data)[0]);
+}
+</script>
+</body>
+</html>

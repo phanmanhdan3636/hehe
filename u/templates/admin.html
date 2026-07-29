@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#08101f;color:#e5eefc}
+.wrap{padding:20px;max-width:1200px;margin:auto}
+.card{background:#0f1a2d;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:16px;margin-bottom:16px}
+h1,h2{margin-top:0}
+a{color:#93c5fd}
+button,input{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#081222;color:#e5eefc}
+button{cursor:pointer}
+.list{display:grid;gap:10px}
+.item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛠 Admin Dashboard</h1>
+  <p>Xin chào, <b>{{ user }}</b> · <a href="/">Về trang chat</a></p>
+
+  <div class="card">
+    <h2>Users</h2>
+    <div id="users" class="list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Reports</h2>
+    <div id="reports" class="list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Logs</h2>
+    <div id="logs" class="list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Groups</h2>
+    <div id="groups" class="list"></div>
+  </div>
+</div>
+
+<script>
+async function load(url, target){
+  const res = await fetch(url);
+  const data = await res.json();
+  const box = document.getElementById(target);
+  box.innerHTML = "";
+  if (data.error){ box.innerHTML = `<div class="item">${data.error}</div>`; return; }
+  if (target === "users"){
+    data.users.forEach(u=>{
+      const d = document.createElement("div");
+      d.className = "item";
+      d.textContent = `${u.username} ${u.banned ? "· banned" : ""}`;
+      box.appendChild(d);
+    });
+  } else if (target === "reports"){
+    data.reports.forEach(r=>{
+      const d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML = `<b>${r.target}</b><div>${r.time}</div><div>${r.reporter}</div><div>${r.reason}</div>`;
+      box.appendChild(d);
+    });
+  } else if (target === "logs"){
+    data.logs.forEach(line=>{
+      const d = document.createElement("div");
+      d.className = "item";
+      d.textContent = line;
+      box.appendChild(d);
+    });
+  } else if (target === "groups"){
+    data.groups.forEach(g=>{
+      const d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML = `<b>${g.name}</b><div>${g.members.length} thành viên</div>`;
+      box.appendChild(d);
+    });
+  }
+}
+load("/api/users", "users");
+load("/api/reports", "reports");
+load("/api/logs", "logs");
+load("/api/admin/groups", "groups");
+</script>
+</body>
+</html>

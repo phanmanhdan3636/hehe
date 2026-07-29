@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập | Chat Bot</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#111a33;
+      --panel2:#0f172a;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#60a5fa;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --border:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,.20), transparent 30%),
+        radial-gradient(circle at top right, rgba(34,197,94,.15), transparent 25%),
+        linear-gradient(180deg, #050816 0%, #0b1020 100%);
+      color:var(--text);
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+    .card{
+      width:min(960px, 100%);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:20px;
+    }
+    .hero,.panel{
+      background:rgba(15,23,42,.86);
+      border:1px solid var(--border);
+      box-shadow:0 20px 80px rgba(0,0,0,.25);
+      backdrop-filter: blur(12px);
+      border-radius:28px;
+      overflow:hidden;
+    }
+    .hero{
+      padding:32px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:540px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:46px;height:46px;border-radius:16px;
+      background:linear-gradient(135deg,var(--accent),#a78bfa);
+      display:grid;place-items:center;
+      font-size:22px;
+      box-shadow:0 10px 30px rgba(96,165,250,.25);
+    }
+    h1{margin:0;font-size:40px;line-height:1.1}
+    .sub{color:var(--muted);max-width:54ch;font-size:15px;line-height:1.7}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+    .chip{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:#dbeafe;font-size:13px}
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}
+    .stat{
+      padding:14px;border-radius:20px;background:rgba(255,255,255,.04);
+      border:1px solid var(--border)
+    }
+    .stat b{display:block;font-size:22px}
+    .stat span{color:var(--muted);font-size:12px}
+    .panel{
+      padding:28px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-height:540px;
+    }
+    .panel h2{margin:0 0 8px;font-size:28px}
+    .panel p{margin:0 0 24px;color:var(--muted);line-height:1.6}
+    label{display:block;font-size:13px;margin:14px 0 8px;color:#dbeafe}
+    input{
+      width:100%;
+      background:#0b1226;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px 16px;
+      outline:none;
+      font-size:15px;
+    }
+    input:focus{border-color:rgba(96,165,250,.7);box-shadow:0 0 0 3px rgba(96,165,250,.12)}
+    .actions{display:grid;gap:10px;margin-top:22px}
+    button,.ghost{
+      width:100%;
+      padding:13px 16px;
+      border:none;
+      border-radius:16px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s transform,.2s opacity,.2s background;
+      text-align:center;
+      text-decoration:none;
+      display:inline-block;
+    }
+    button:hover,.ghost:hover{transform:translateY(-1px)}
+    .primary{background:linear-gradient(135deg,var(--accent),#7c3aed);color:white}
+    .success{background:linear-gradient(135deg,#22c55e,#16a34a);color:white}
+    .ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+    .error{
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(239,68,68,.12);
+      border:1px solid rgba(239,68,68,.25);
+      color:#fecaca;
+      margin-bottom:14px;
+      font-size:14px;
+    }
+    .footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    @media (max-width: 900px){
+      .card{grid-template-columns:1fr}
+      .hero,.panel{min-height:auto}
+      h1{font-size:32px}
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <section class="hero">
+      <div>
+        <div class="brand">
+          <div class="logo">🤖</div>
+          <div>
+            <div style="font-weight:700">Chat Bot Web</div>
+            <div style="color:var(--muted);font-size:13px">Messenger mini + nhóm + inbox + admin</div>
+          </div>
+        </div>
+        <h1>Vào phòng chat của bạn.</h1>
+        <p class="sub">
+           Chúng tôi có:chat, học câu trả lời, gửi tin, tạo nhóm, vào nhóm, báo cáo.
+        </p>
+        <div class="chips">
+          <span class="chip">💬 Chatbot</span>
+          <span class="chip">👥 Group</span>
+          <span class="chip">📬 Inbox</span>
+          <span class="chip">🛠 Admin</span>
+          <span class="chip">🎧 Nhạc nền</span>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b>01</b><span>Đăng nhập / đăng ký</span></div>
+        <div class="stat"><b>02</b><span>Chat + dữ liệu</span></div>
+        <div class="stat"><b>03</b><span>Nhóm + báo cáo</span></div>
+        <div class="stat"><b>04</b><span>Bảng điều khiển</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Đăng nhập</h2>
+      <p>Nhập tài khoản để mở toàn bộ tính năng. Có thể vào quyền Khách nếu chỉ muốn thử.</p>
+
+      {% if error %}
+      <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" action="/login">
+        <label>Tên đăng nhập</label>
+        <input name="user" placeholder="VD: anhtraisaygex" autocomplete="username" />
+
+        <label>Mật khẩu</label>
+        <input name="password" type="password" placeholder="123456" autocomplete="current-password" />
+
+        <div class="actions">
+          <button class="primary" type="submit">Đăng nhập</button>
+        </div>
+      </form>
+
+      <form method="POST" action="/register" style="margin-top:12px">
+        <div class="actions">
+          <button class="success" type="button" onclick="registerFlow()">Tạo tài khoản</button>
+        </div>
+      </form>
+
+      <form method="POST" action="/guest" style="margin-top:12px">
+        <button class="ghost" type="submit">Tiếp tục với quyền Khách</button>
+      </form>
+
+      <div class="footer">
+        Gợi ý: lưu project cùng thư mục với <b>templates/</b> và <b>static/</b>.<br>
+        Dữ liệu vẫn đọc từ <b>/storage/emulated/0/</b>.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function registerFlow(){
+        const u = prompt("Tên tài khoản mới:");
+        if(!u) return;
+    
+        const p = prompt("Mật khẩu mới:");
+        if(!p) return;
+    
+        // 👉 THÊM 2 DÒNG NÀY
+        const name = prompt("Họ và tên:");
+        if(!name) return;
+    
+        const lop = prompt("Lớp:");
+        if(!lop) return;
+    
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/register";
+    
+        const i1 = document.createElement("input");
+        i1.type = "hidden"; i1.name = "user"; i1.value = u;
+    
+        const i2 = document.createElement("input");
+        i2.type = "hidden"; i2.name = "password"; i2.value = p;
+    
+        // 👉 THÊM 2 INPUT NÀY
+        const i3 = document.createElement("input");
+        i3.type = "hidden"; i3.name = "name"; i3.value = name;
+    
+        const i4 = document.createElement("input");
+        i4.type = "hidden"; i4.name = "class"; i4.value = lop;
+    
+        form.appendChild(i1);
+        form.appendChild(i2);
+        form.appendChild(i3);
+        form.appendChild(i4);
+    
+        document.body.appendChild(form);
+        form.submit();
+    }
+  </script>
+</body>
+</html>

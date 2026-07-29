@@ -1,0 +1,959 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Bot Web</title>
+<style>
+  :root{
+    --bg:#07111f;
+    --panel:#0d1728;
+    --panel2:#111d34;
+    --card:#0f1a2d;
+    --text:#e5eefc;
+    --muted:#8ea3c2;
+    --accent:#60a5fa;
+    --accent2:#22c55e;
+    --danger:#ef4444;
+    --border:rgba(255,255,255,.08);
+    --shadow: 0 16px 70px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(96,165,250,.14), transparent 28%),
+      radial-gradient(circle at top right, rgba(34,197,94,.12), transparent 24%),
+      linear-gradient(180deg, #050816 0%, #07111f 100%);
+    color:var(--text);
+  }
+  .app{display:grid;grid-template-columns:290px 1fr;min-height:100vh}
+  .sidebar{
+    background:rgba(5,10,20,.7);
+    border-right:1px solid var(--border);
+    padding:18px;
+    backdrop-filter: blur(16px);
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 14px;border-radius:20px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+  }
+  .logo{
+    width:46px;height:46px;border-radius:16px;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg,#60a5fa,#a78bfa);
+    font-size:22px;
+  }
+  .brand strong{display:block;font-size:16px}
+  .brand span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+  .usercard{
+    margin-top:14px;
+    padding:14px;
+    border-radius:20px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 10px;border-radius:999px;
+    background:rgba(96,165,250,.12);
+    color:#bfdbfe;font-size:12px;
+    border:1px solid rgba(96,165,250,.18);
+    margin-top:8px;
+  }
+  .nav{display:grid;gap:8px;margin-top:16px}
+  .nav button{
+    width:100%;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:13px 14px;
+    border-radius:16px;
+    text-align:left;
+    cursor:pointer;
+    transition:.2s background,.2s transform,.2s border-color;
+  }
+  .nav button:hover{transform:translateY(-1px);background:rgba(255,255,255,.05)}
+  .nav button.active{background:linear-gradient(135deg,rgba(96,165,250,.2),rgba(124,58,237,.18));border-color:rgba(96,165,250,.35)}
+  .footermini{
+    margin-top:16px;font-size:12px;color:var(--muted);line-height:1.7;
+    padding:0 4px;
+  }
+
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;
+    border-bottom:1px solid var(--border);
+    background:rgba(7,17,31,.75);
+    backdrop-filter: blur(16px);
+    position:sticky;top:0;z-index:5;
+  }
+  .topbar .title{display:flex;flex-direction:column}
+  .topbar h1{margin:0;font-size:20px}
+  .topbar small{color:var(--muted)}
+  .topbar .actions{display:flex;gap:10px;flex-wrap:wrap}
+  .topbar a,.topbar button{
+    border:none;text-decoration:none;cursor:pointer;
+    padding:11px 14px;border-radius:14px;
+    color:var(--text);background:rgba(255,255,255,.05);
+    border:1px solid var(--border);
+  }
+  .topbar .danger{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.2)}
+  .topbar .success{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.2)}
+
+  .content{
+    padding:18px;
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:18px;
+    flex:1;
+    min-height:0;
+  }
+  .card{
+    background:rgba(13,23,40,.88);
+    border:1px solid var(--border);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    min-width:0;
+  }
+  .card-header{
+    padding:16px 18px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    background:rgba(255,255,255,.03);
+  }
+  .card-header h2{margin:0;font-size:17px}
+  .card-body{padding:16px 18px}
+  .section{display:none}
+  .section.active{display:block}
+
+  .messages{
+    height:56vh;
+    overflow:auto;
+    padding:10px 2px 10px 2px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .bubble{
+    max-width:min(85%, 680px);
+    padding:12px 14px;
+    border-radius:18px;
+    border:1px solid var(--border);
+    line-height:1.55;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .bubble.user{align-self:flex-end;background:linear-gradient(135deg, rgba(96,165,250,.22), rgba(124,58,237,.18))}
+  .bubble.bot{align-self:flex-start;background:rgba(255,255,255,.05)}
+  .bubble.system{align-self:center;background:rgba(34,197,94,.10);color:#d1fae5}
+  .meta{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+  .composer,.form-row{
+    display:flex;gap:10px;
+  }
+  input,select,textarea{
+    width:100%;
+    background:#081222;
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:13px 14px;
+    outline:none;
+    font-size:14px;
+  }
+  input:focus,textarea:focus,select:focus{border-color:rgba(96,165,250,.7);box-shadow:0 0 0 3px rgba(96,165,250,.1)}
+  textarea{min-height:104px;resize:vertical}
+  .btn{
+    border:none;
+    padding:12px 14px;
+    border-radius:16px;
+    cursor:pointer;
+    color:white;
+    font-weight:700;
+    transition:.2s transform,.2s opacity;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{background:linear-gradient(135deg,#60a5fa,#7c3aed)}
+  .btn.green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+  .btn.red{background:linear-gradient(135deg,#ef4444,#dc2626)}
+  .btn.gray{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text)}
+  .btn.small{padding:9px 11px;font-size:12px;border-radius:12px}
+  .muted{color:var(--muted);font-size:13px;line-height:1.7}
+  .list{display:grid;gap:10px}
+  .item{
+    padding:12px 14px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+  }
+  .item b{display:block;margin-bottom:4px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .tag{
+    display:inline-flex;align-items:center;
+    gap:6px;
+    padding:6px 9px;border-radius:999px;
+    background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.16);
+    color:#bfdbfe;font-size:12px;margin-right:6px;margin-bottom:6px;
+  }
+  .board{
+    display:grid;
+    grid-template-columns:repeat(3,90px);
+    gap:8px;
+    justify-content:flex-start;
+  }
+  .cell{
+    width:90px;height:90px;
+    border-radius:18px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.05);
+    color:var(--text);
+    font-size:34px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .cell:disabled{opacity:.8;cursor:not-allowed}
+  .status{
+    margin:10px 0 0;
+    color:#dbeafe;
+    font-weight:700;
+  }
+  audio{width:100%}
+  .hidden{display:none!important}
+  @media (max-width: 1100px){
+    .app{grid-template-columns:1fr}
+    .content{grid-template-columns:1fr}
+    .messages{height:46vh}
+  }
+  @media (max-width: 680px){
+    .grid2{grid-template-columns:1fr}
+    .composer,.form-row{flex-direction:column}
+    .board{grid-template-columns:repeat(3,1fr)}
+    .cell{width:100%;aspect-ratio:1}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">🤖</div>
+      <div>
+        <strong>Chat Bot Web</strong>
+        <span>Messenger mini của bạn</span>
+      </div>
+    </div>
+
+    <div class="usercard">
+      <div style="font-size:18px;font-weight:800">{{ user }}</div>
+      <div class="pill">{{ 'Đã đăng nhập' if logged_in else 'Khách' }}{% if admin %} · Admin{% endif %}</div>
+      <div class="muted" style="margin-top:10px">
+        Dữ liệu: /storage/emulated/0/<br>
+        Nhạc: /static/nhac.mp3
+      </div>
+    </div>
+
+    <div class="nav">
+      <a href="/music">🎧 Nhạc</a>
+      <button class="active" data-tab="chat">💬 Chat</button>
+      <button data-tab="inbox">📬 Hộp thư</button>
+      <button data-tab="groups">👥 Nhóm</button>
+      <button data-tab="report">🚨 Báo cáo</button>
+      <button data-tab="calc">🧮 Tính điểm</button>
+      <button data-tab="game">🎮 Caro</button>
+      <button data-tab="account">👤 Tài khoản</button>
+      <button data-tab="admin" id="adminBtn" class="{{ '' if admin else 'hidden' }}">🛠 Admin</button>
+    </div>
+
+    <div class="footermini">
+      Bot cũ đã được chuyển sang web.<br>
+      Có chat, inbox, nhóm, báo cáo, admin, game, tính điểm và nhạc nền.
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="title">
+        <h1>Phòng chat</h1>
+        <small id="subtitle">Gõ tin nhắn, hoặc bấm nút bên trái để đổi mục.</small>
+      </div>
+      <div class="actions">
+        <button class="success" onclick="playMusic()">▶ Play</button>
+        <button class="gray" onclick="pauseMusic()">⏸ Pause</button>
+        <a href="/logout" class="danger">Đăng xuất</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="card">
+        <div class="card-header">
+          <h2 id="panelTitle">💬 Chat bot</h2>
+          <div class="toolbar">
+            <button class="btn gray small" onclick="sendQuick('menu')">menu</button>
+            <button class="btn gray small" onclick="sendQuick('truyện cười')">truyện cười</button>
+            <button class="btn gray small" onclick="sendQuick('help')">help</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section active" id="section-chat">
+            <div id="chatMessages" class="messages"></div>
+            <div class="composer" style="margin-top:12px">
+              <input id="chatInput" placeholder="Nhập tin nhắn..." onkeydown="if(event.key==='Enter') sendChat()">
+              <button class="btn primary" onclick="sendChat()">Gửi</button>
+            </div>
+            <div class="muted" style="margin-top:10px">
+              Lệnh nhanh: <b>menu</b>, <b>help</b>, <b>truyện cười</b>, <b>01032008</b>.
+            </div>
+          </div>
+
+          <div class="section" id="section-inbox">
+            <div class="grid2">
+              <div class="item">
+                <b>Hộp thư</b>
+                <div id="inboxList" class="list"></div>
+              </div>
+              <div class="item">
+                <b>Gửi tin nhắn</b>
+                <div class="form-row">
+                  <input id="dmReceiver" placeholder="username / all">
+                  <input id="dmMessage" placeholder="Nội dung">
+                </div>
+                <div style="margin-top:10px">
+                  <button class="btn green" onclick="sendDM()">Gửi</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="section-groups">
+            <div class="grid2">
+              <div class="item">
+                <b>Danh sách nhóm</b>
+                <div id="groupsList" class="list"></div>
+              </div>
+              <div class="item">
+                <b>Nhóm của tôi</b>
+                <div id="myGroups" class="list"></div>
+              </div>
+            </div>
+
+            <div class="grid2" style="margin-top:12px">
+              <div class="item">
+                <b>Tạo nhóm</b>
+                <input id="newGroupName" placeholder="Tên nhóm" style="margin-bottom:10px">
+                <input id="newGroupPw" placeholder="Mật khẩu (tuỳ chọn)" style="margin-bottom:10px">
+                <button class="btn primary" onclick="createGroup()">Tạo</button>
+              </div>
+              <div class="item">
+                <b>Vào / rời / chat nhóm</b>
+                <input id="targetGroup" placeholder="Tên nhóm" style="margin-bottom:10px">
+                <input id="targetGroupPw" placeholder="Mật khẩu nhóm (nếu có)" style="margin-bottom:10px">
+                <div class="toolbar">
+                  <button class="btn green" onclick="joinGroup()">Vào</button>
+                  <button class="btn red" onclick="leaveGroup()">Rời</button>
+                  <button class="btn gray" onclick="loadGroupMessages()">Xem</button>
+                </div>
+                <textarea id="groupMessage" placeholder="Tin nhắn nhóm" style="margin-top:10px"></textarea>
+                <button class="btn primary" onclick="sendGroupMessage()" style="margin-top:10px">Gửi vào nhóm</button>
+              </div>
+            </div>
+
+            <div class="item" style="margin-top:12px">
+              <b>Lịch sử nhóm</b>
+              <div id="groupMessages" class="list"></div>
+            </div>
+          </div>
+
+          <div class="section" id="section-report">
+            <div class="grid2">
+              <div class="item">
+                <b>Gửi báo cáo</b>
+                <input id="reportTarget" placeholder="User bị báo cáo" style="margin-bottom:10px">
+                <textarea id="reportReason" placeholder="Lý do"></textarea>
+                <button class="btn red" onclick="sendReport()" style="margin-top:10px">Báo cáo</button>
+              </div>
+              <div class="item">
+                <b>Gợi ý</b>
+                <div class="muted">
+                  Báo cáo sẽ được lưu vào file <b>report.txt</b>.<br>
+                  Nếu một user bị báo cáo nhiều lần, admin có thể xem và khóa tài khoản.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="section-calc">
+            <div class="grid2">
+              <div class="item">
+                <b>Tính điểm học kỳ</b>
+                <input id="hk1" placeholder="Điểm HK1" style="margin-bottom:10px">
+                <input id="hk2" placeholder="Điểm HK2" style="margin-bottom:10px">
+                <button class="btn primary" onclick="calcScore()">Tính cả năm</button>
+                <div id="calcResult" class="status"></div>
+              </div>
+              <div class="item">
+                <b>Gợi ý công thức</b>
+                <div class="muted">
+                  Ở bản web này, bạn nhập sẵn điểm trung bình HK1 và HK2.
+                  Điểm cả năm = (HK1 + HK2 × 2) / 3.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="section-game">
+            <div class="item">
+              <b>Caro 3x3</b>
+              <div class="board" id="board"></div>
+              <div class="status" id="gameStatus">Bấm ô để chơi với máy.</div>
+              <div style="margin-top:10px">
+                <button class="btn gray" onclick="resetGame()">Chơi lại</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="section-account">
+            <div class="grid2">
+              <div class="item">
+                <b>Thông tin tài khoản</b>
+                <div class="muted">
+                  Tên: <b>{{ user }}</b><br>
+                  Quyền: <b>{{ 'Admin' if admin else ('Đăng nhập' if logged_in else 'Khách') }}</b><br>
+                  Trạng thái: <b>Bình thường</b>
+                </div>
+              </div>
+              <div class="item">
+                <b>Đổi mật khẩu</b>
+                <input id="oldPass" placeholder="Mật khẩu cũ" style="margin-bottom:10px">
+                <input id="newPass" placeholder="Mật khẩu mới" style="margin-bottom:10px">
+                <button class="btn primary" onclick="changePassword()">Đổi mật khẩu</button>
+                <div id="passResult" class="status"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="section-admin">
+            <div class="grid2">
+              <div class="item">
+                <b>Admin panel</b>
+                <div class="toolbar" style="margin-bottom:10px">
+                  <button class="btn gray small" onclick="loadAdminUsers()">Users</button>
+                  <button class="btn gray small" onclick="loadAdminReports()">Reports</button>
+                  <button class="btn gray small" onclick="loadAdminLogs()">Logs</button>
+                  <button class="btn gray small" onclick="loadAdminGroups()">Groups</button>
+                </div>
+                <div id="adminBox" class="list"></div>
+              </div>
+              <div class="item">
+                <b>Hành động nhanh</b>
+                <input id="adminUser" placeholder="User" style="margin-bottom:10px">
+                <input id="adminNewPass" placeholder="Mật khẩu mới" style="margin-bottom:10px">
+                <div class="toolbar">
+                  <button class="btn red" onclick="adminBan()">Ban</button>
+                  <button class="btn green" onclick="adminUnban()">Unban</button>
+                  <button class="btn primary" onclick="adminDelete()">Xóa</button>
+                </div>
+                <div style="margin-top:10px">
+                  <button class="btn gray" onclick="adminResetPass()">Reset mật khẩu</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>🎧 Nhạc & Trạng thái</h2>
+          <div class="tag">Live</div>
+        </div>
+        <div class="card-body">
+          <audio id="music" controls loop>
+            <source src="/static/nhac.mp3" type="audio/mpeg">
+          </audio>
+
+          <div class="item" style="margin-top:12px">
+            <b>Trạng thái hệ thống</b>
+            <div id="stateBox" class="muted">Đang tải...</div>
+          </div>
+
+          <div class="item" style="margin-top:12px">
+            <b>Phím tắt</b>
+            <div class="muted">
+              <span class="tag">Ctrl+1 Chat</span>
+              <span class="tag">Ctrl+2 Inbox</span>
+              <span class="tag">Ctrl+3 Groups</span>
+              <span class="tag">Ctrl+4 Admin</span>
+            </div>
+          </div>
+
+          <div class="item" style="margin-top:12px">
+            <b>Gợi ý lệnh gốc</b>
+            <div class="muted">
+              help · menu · truyện cười · hộp thư · gửi tin · tạo nhóm · vào nhóm · rời nhóm · báo cáo · tính điểm
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+let bootstrapData = null;
+let game = ["","","","","","","","",""];
+let gameOver = false;
+
+const tabs = [...document.querySelectorAll(".nav button[data-tab]")];
+const sections = {
+  chat: document.getElementById("section-chat"),
+  inbox: document.getElementById("section-inbox"),
+  groups: document.getElementById("section-groups"),
+  report: document.getElementById("section-report"),
+  calc: document.getElementById("section-calc"),
+  game: document.getElementById("section-game"),
+  account: document.getElementById("section-account"),
+  admin: document.getElementById("section-admin"),
+};
+function switchTab(tab){
+  tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  Object.entries(sections).forEach(([k, el]) => el.classList.toggle("active", k === tab));
+  const titles = {
+    chat:"💬 Chat bot",
+    inbox:"📬 Hộp thư",
+    groups:"👥 Nhóm",
+    report:"🚨 Báo cáo",
+    calc:"🧮 Tính điểm",
+    game:"🎮 Caro",
+    account:"👤 Tài khoản",
+    admin:"🛠 Admin"
+  };
+  document.getElementById("panelTitle").textContent = titles[tab] || "Chat";
+  document.getElementById("subtitle").textContent = "Đang mở: " + titles[tab];
+}
+tabs.forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.key === "1") switchTab("chat");
+  if (e.ctrlKey && e.key === "2") switchTab("inbox");
+  if (e.ctrlKey && e.key === "3") switchTab("groups");
+  if (e.ctrlKey && e.key === "4") switchTab("admin");
+});
+
+function addBubble(text, type="bot", meta=""){
+  const box = document.getElementById("chatMessages");
+  const div = document.createElement("div");
+  div.className = "bubble " + type;
+  div.innerHTML = (meta ? `<span class="meta">${meta}</span>` : "") + escapeHtml(text).replace(/\n/g, "<br>");
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function escapeHtml(text){
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function escapeJs(text){
+  return String(text || "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+}
+
+function addList(container, items, render){
+  const box = document.getElementById(container);
+  box.innerHTML = "";
+  if (!items || !items.length){
+    box.innerHTML = `<div class="muted">Chưa có dữ liệu.</div>`;
+    return;
+  }
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = render(item);
+    box.appendChild(div);
+  });
+}
+
+async function loadBootstrap(){
+  const res = await fetch("/api/bootstrap");
+  bootstrapData = await res.json();
+
+  document.getElementById("stateBox").innerHTML = `
+    <div>👤 User: <b>${bootstrapData.user}</b></div>
+    <div>🔐 Đăng nhập: <b>${bootstrapData.logged_in ? "Có" : "Không"}</b></div>
+    <div>🛠 Admin: <b>${bootstrapData.admin ? "Có" : "Không"}</b></div>
+    <div>📬 Inbox: <b>${bootstrapData.inbox_count}</b></div>
+    <div>🚨 Báo cáo mới: <b>${bootstrapData.reports_unread ? "Có" : "Không"}</b></div>
+  `;
+
+  document.getElementById("inboxList").innerHTML = "";
+  if (!bootstrapData.inbox.length){
+    document.getElementById("inboxList").innerHTML = `<div class="muted">Chưa có tin nhắn.</div>`;
+  } else {
+    bootstrapData.inbox.slice().reverse().forEach(m => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <b>${escapeHtml(m.sender)}</b>
+        <div class="muted">${escapeHtml(m.time)}</div>
+        <div style="margin-top:6px">${escapeHtml(m.message)}</div>
+      `;
+      document.getElementById("inboxList").appendChild(div);
+    });
+  }
+
+  addList("groupsList", bootstrapData.groups, g => `
+    <b>${g.locked ? "🔒 " : "🌐 "}${escapeHtml(g.name)}</b>
+    <div class="muted">${g.members.length} thành viên</div>
+  `);
+
+  addList("myGroups", (bootstrapData.my_groups || []).map(g => ({name:g})), g => `
+    <b>📂 ${escapeHtml(g.name)}</b>
+    <div class="toolbar" style="margin-top:8px">
+      <button class="btn gray small" onclick="document.getElementById('targetGroup').value='${escapeJs(g.name)}'; loadGroupMessages('${escapeJs(g.name)}')">Xem</button>
+      <button class="btn red small" onclick="document.getElementById('targetGroup').value='${escapeJs(g.name)}'; leaveGroup()">Rời</button>
+    </div>
+  `);
+
+  if (bootstrapData.admin){
+    document.getElementById("adminBtn").classList.remove("hidden");
+  }
+}
+
+async function sendChat(){
+  const input = document.getElementById("chatInput");
+  const msg = input.value.trim();
+  if (!msg) return;
+  addBubble(msg, "user", "Bạn");
+  input.value = "";
+  const res = await fetch("/api/chat", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({msg})
+  });
+  const data = await res.json();
+  if (data.reply) addBubble(data.reply, "bot", "Bot");
+  else addBubble("Có lỗi.", "system");
+}
+function sendQuick(text){
+  document.getElementById("chatInput").value = text;
+  sendChat();
+}
+
+async function sendDM(){
+  const receiver = document.getElementById("dmReceiver").value.trim();
+  const message = document.getElementById("dmMessage").value.trim();
+  if (!receiver || !message) return;
+  const res = await fetch("/api/dm/send", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({receiver, message})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+  document.getElementById("dmMessage").value = "";
+  await loadBootstrap();
+}
+
+async function createGroup(){
+  const group = document.getElementById("newGroupName").value.trim();
+  const password = document.getElementById("newGroupPw").value.trim();
+  const res = await fetch("/api/groups/create", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({group, password})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+  await loadBootstrap();
+}
+async function joinGroup(){
+  const group = document.getElementById("targetGroup").value.trim();
+  const password = document.getElementById("targetGroupPw").value.trim();
+  const res = await fetch("/api/groups/join", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({group, password})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+  await loadBootstrap();
+}
+async function leaveGroup(){
+  const group = document.getElementById("targetGroup").value.trim();
+  const res = await fetch("/api/groups/leave", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({group})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+  await loadBootstrap();
+}
+async function sendGroupMessage(){
+  const group = document.getElementById("targetGroup").value.trim();
+  const message = document.getElementById("groupMessage").value.trim();
+  if (!group || !message) return;
+  const res = await fetch("/api/groups/send", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({group, message})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+  document.getElementById("groupMessage").value = "";
+  await loadGroupMessages(group);
+  await loadBootstrap();
+}
+async function loadGroupMessages(forGroup){
+  const group = (forGroup || document.getElementById("targetGroup").value.trim());
+  if (!group) return alert("Nhập tên nhóm.");
+  const res = await fetch("/api/groups/messages?group=" + encodeURIComponent(group));
+  const data = await res.json();
+  if (data.error) return alert(data.error);
+
+  const box = document.getElementById("groupMessages");
+  box.innerHTML = "";
+  if (!data.messages.length){
+    box.innerHTML = `<div class="muted">Chưa có tin nhắn trong nhóm.</div>`;
+    return;
+  }
+  data.messages.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <b>${escapeHtml(m.sender)}</b>
+      <div class="muted">${escapeHtml(m.time)}</div>
+      <div style="margin-top:6px">${escapeHtml(m.message)}</div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+async function sendReport(){
+  const target = document.getElementById("reportTarget").value.trim();
+  const reason = document.getElementById("reportReason").value.trim();
+  const res = await fetch("/api/report", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({target, reason})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+}
+
+async function calcScore(){
+  const hk1 = document.getElementById("hk1").value.trim();
+  const hk2 = document.getElementById("hk2").value.trim();
+  const res = await fetch("/api/calc", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({hk1, hk2})
+  });
+  const data = await res.json();
+  document.getElementById("calcResult").textContent = data.ca_nam ? `Điểm cả năm: ${data.ca_nam}` : "Thiếu dữ liệu hoặc nhập sai.";
+}
+
+function playMusic(){ document.getElementById("music").play(); }
+function pauseMusic(){ document.getElementById("music").pause(); }
+
+function renderBoard(){
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  game.forEach((v, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "cell";
+    btn.textContent = v;
+    btn.disabled = gameOver || !!v;
+    btn.onclick = () => playerMove(idx);
+    board.appendChild(btn);
+  });
+}
+function checkWin(b, p){
+  const wins = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+  return wins.some(([a,b2,c]) => b[a]===p && b[b2]===p && b[c]===p);
+}
+function boardFull(b){ return b.every(Boolean); }
+function playerMove(idx){
+  if (gameOver || game[idx]) return;
+  game[idx] = "X";
+  if (checkWin(game, "X")){
+    gameOver = true;
+    document.getElementById("gameStatus").textContent = "🏆 Bạn thắng!";
+    renderBoard();
+    return;
+  }
+  if (boardFull(game)){
+    gameOver = true;
+    document.getElementById("gameStatus").textContent = "🤝 Hòa!";
+    renderBoard();
+    return;
+  }
+  setTimeout(aiMove, 180);
+  renderBoard();
+}
+function aiMove(){
+  const empty = game.map((v,i)=>v ? null : i).filter(v=>v!==null);
+  if (!empty.length || gameOver) return;
+  const idx = empty[Math.floor(Math.random()*empty.length)];
+  game[idx] = "O";
+  if (checkWin(game, "O")){
+    gameOver = true;
+    document.getElementById("gameStatus").textContent = "💀 Máy thắng!";
+  } else if (boardFull(game)){
+    gameOver = true;
+    document.getElementById("gameStatus").textContent = "🤝 Hòa!";
+  } else {
+    document.getElementById("gameStatus").textContent = "Đến lượt bạn.";
+  }
+  renderBoard();
+}
+function resetGame(){
+  game = ["","","","","","","","",""];
+  gameOver = false;
+  document.getElementById("gameStatus").textContent = "Bấm ô để chơi với máy.";
+  renderBoard();
+}
+
+async function changePassword(){
+  const old_password = document.getElementById("oldPass").value.trim();
+  const new_password = document.getElementById("newPass").value.trim();
+  const res = await fetch("/api/admin/reset_password", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user: "{{ user }}", password: new_password, old_password})
+  });
+  const data = await res.json();
+  document.getElementById("passResult").textContent = data.message || "Xong";
+}
+
+async function loadAdminUsers(){
+  const res = await fetch("/api/users");
+  const data = await res.json();
+  const box = document.getElementById("adminBox");
+  box.innerHTML = "";
+  if (data.error){ box.innerHTML = `<div class="muted">${data.error}</div>`; return; }
+  data.users.forEach(u => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <b>${escapeHtml(u.username)}</b>
+      <div class="muted">${u.banned ? "Đang bị ban" : "Bình thường"}</div>
+    `;
+    box.appendChild(div);
+  });
+}
+async function loadAdminReports(){
+  const res = await fetch("/api/reports");
+  const data = await res.json();
+  const box = document.getElementById("adminBox");
+  box.innerHTML = "";
+  if (data.error){ box.innerHTML = `<div class="muted">${data.error}</div>`; return; }
+  data.reports.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <b>${escapeHtml(r.target)}</b>
+      <div class="muted">${escapeHtml(r.time)}</div>
+      <div>Người báo cáo: ${escapeHtml(r.reporter)}</div>
+      <div>Lý do: ${escapeHtml(r.reason)}</div>
+    `;
+    box.appendChild(div);
+  });
+}
+async function loadAdminLogs(){
+  const res = await fetch("/api/logs");
+  const data = await res.json();
+  const box = document.getElementById("adminBox");
+  box.innerHTML = "";
+  if (data.error){ box.innerHTML = `<div class="muted">${data.error}</div>`; return; }
+  data.logs.forEach(line => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.textContent = line;
+    box.appendChild(div);
+  });
+}
+async function loadAdminGroups(){
+  const res = await fetch("/api/admin/groups");
+  const data = await res.json();
+  const box = document.getElementById("adminBox");
+  box.innerHTML = "";
+  if (data.error){ box.innerHTML = `<div class="muted">${data.error}</div>`; return; }
+  data.groups.forEach(g => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <b>${g.name}</b>
+      <div class="muted">${g.members.length} thành viên ${g.locked ? "· 🔒" : "· 🌐"}</div>
+      <div class="muted">${g.members.map(escapeHtml).join(", ") || "Chưa có thành viên"}</div>
+    `;
+    box.appendChild(div);
+  });
+}
+async function adminBan(){
+  const user = document.getElementById("adminUser").value.trim();
+  const res = await fetch("/api/admin/ban", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+}
+async function adminUnban(){
+  const user = document.getElementById("adminUser").value.trim();
+  const res = await fetch("/api/admin/unban", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+}
+async function adminDelete(){
+  const user = document.getElementById("adminUser").value.trim();
+  const res = await fetch("/api/admin/delete_user", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+}
+async function adminResetPass(){
+  const user = document.getElementById("adminUser").value.trim();
+  const password = document.getElementById("adminNewPass").value.trim();
+  const res = await fetch("/api/admin/reset_password", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user, password})
+  });
+  const data = await res.json();
+  alert(data.message || "Xong");
+}
+
+loadBootstrap();
+resetGame();
+addBubble("Chào bạn 👋 Hệ thống đã sẵn sàng.", "system", "SYSTEM");
+</script>
+</body>
+</html>
