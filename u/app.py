@@ -169,10 +169,10 @@ def tim_kiem_nang_cao(query, data):
                 # Cộng điểm nếu từ khóa khớp
                 for kw in keywords:
                     if kw in cau_hoi_mau:
-                        score += 0.1
+                        score += 0.2
                         
                 # Hạ ngưỡng xuống 0.4 để dễ nhận diện hơn (hoặc chỉnh tùy ý)
-                if score >= 0.4:
+                if score >= 0.8:
                     results.append((cau_tra_loi, score))
             else:
                 line_low = line_clean.lower()
@@ -180,7 +180,7 @@ def tim_kiem_nang_cao(query, data):
                 for kw in keywords:
                     if kw in line_low:
                         score += 0.2
-                if score >= 0.4:
+                if score >= 0.8:
                     results.append((line_clean, score))
         except Exception:
             continue  # Bỏ qua dòng lỗi để không làm sập toàn bộ bot
